@@ -3,30 +3,21 @@ package net.minecraft.server;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import dev.cobblesword.nachospigot.Nacho;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.WeatherType;
+import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.util.HashTreeSet;
+import org.bukkit.craftbukkit.util.LongHash;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.weather.LightningStrikeEvent;
 
-// CraftBukkit start
 import java.util.*;
 import java.util.logging.Level;
 
-import org.bukkit.WeatherType;
-import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.util.LongHash;
-import org.bukkit.craftbukkit.util.HashTreeSet;
-
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.weather.LightningStrikeEvent;
+// CraftBukkit start
 // CraftBukkit end
 
 public class WorldServer extends World implements IAsyncTaskHandler {
@@ -472,7 +463,7 @@ public class WorldServer extends World implements IAsyncTaskHandler {
 
                 this.methodProfiler.c("tickBlocks");
                 timings.chunkTicksBlocks.startTiming(); // Spigot
-                int randomTickSpeed = 3;// this.getGameRules().c("randomTickSpeed"); // Nacho :: Disable random tickSpeed being modified
+                int randomTickSpeed = Nacho.get().getConfig().randomTickSpeed;// this.getGameRules().c("randomTickSpeed"); // Nacho :: Disable random tickSpeed being modified
                 if (randomTickSpeed > 0)
                 {
                     ChunkSection[] achunksection = chunk.getSections();
