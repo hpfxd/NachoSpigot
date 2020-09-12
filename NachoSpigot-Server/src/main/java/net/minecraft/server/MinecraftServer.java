@@ -1,8 +1,8 @@
 package net.minecraft.server;
 
+import co.aikar.timings.SpigotTimings;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
@@ -14,38 +14,29 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.base64.Base64;
-import java.awt.GraphicsEnvironment;
+import jline.console.ConsoleReader;
+import joptsimple.OptionSet;
+import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bukkit.craftbukkit.Main;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.Proxy;
 import java.security.KeyPair;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-import javax.imageio.ImageIO;
-import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 // CraftBukkit start
-import java.io.IOException;
-
-import jline.console.ConsoleReader;
-import joptsimple.OptionSet;
-
-import org.bukkit.craftbukkit.Main;
-import co.aikar.timings.SpigotTimings; // Spigot
 // CraftBukkit end
 
 public abstract class MinecraftServer implements Runnable, ICommandListener, IAsyncTaskHandler, IMojangStatistics {
@@ -615,7 +606,11 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
                     }
                     lastTick = curTime;
 
+                    org.bukkit.Bukkit.getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerTickStartEvent(this.ticks+1));
                     this.A();
+                    long endTime = System.nanoTime();
+                    long remaining = (TICK_TIME - (endTime - lastTick)) - catchupTime;
+                    org.bukkit.Bukkit.getPluginManager().callEvent(new com.destroystokyo.paper.event.server.ServerTickEndEvent(this.ticks, ((double)(endTime - lastTick) / 1000000D), remaining));
                     this.Q = true;
                 }
                 // Spigot end
