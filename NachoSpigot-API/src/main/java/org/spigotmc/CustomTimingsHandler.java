@@ -23,13 +23,12 @@
  */
 package org.spigotmc;
 
-import jdk.internal.reflect.Reflection;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.AuthorNagException;
-import org.bukkit.plugin.Plugin;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import co.aikar.timings.TimingsManager;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.AuthorNagException;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 import java.util.logging.Level;
@@ -44,6 +43,28 @@ import java.util.logging.Level;
  */
 @Deprecated
 public final class CustomTimingsHandler {
+    private static final Class<?> REFLECTION_CLASS;
+    private static final Method GET_CALLER_CLASS_METHOD;
+    static {
+        Class<?> REFLECTION_CLASS1 = null;
+        Method GET_CALLER_CLASS_METHOD1 = null;
+        try {
+            REFLECTION_CLASS1 = Class.forName("sun.reflect.Reflection");
+        } catch (ClassNotFoundException e) {
+            try {
+                REFLECTION_CLASS1 = Class.forName("jdk.internal.reflect.Reflection");
+            } catch (ClassNotFoundException ignored) {}
+        }
+        REFLECTION_CLASS = REFLECTION_CLASS1;
+
+        if (REFLECTION_CLASS != null) {
+            try {
+                GET_CALLER_CLASS_METHOD1 = REFLECTION_CLASS.getMethod("getCallerClass");
+            } catch (NoSuchMethodException ignored) {}
+        }
+        GET_CALLER_CLASS_METHOD = GET_CALLER_CLASS_METHOD1;
+    }
+
     private final Timing handler;
 
     public CustomTimingsHandler(String name) {
@@ -51,7 +72,9 @@ public final class CustomTimingsHandler {
 
         Plugin plugin = null;
         try {
-             plugin = TimingsManager.getPluginByClassloader(Reflection.getCallerClass());
+             if (GET_CALLER_CLASS_METHOD != null) {
+                 plugin = TimingsManager.getPluginByClassloader((Class<?>) GET_CALLER_CLASS_METHOD.invoke(null));
+             }
         } catch (Exception ignored) {}
 
         new AuthorNagException("Deprecated use of CustomTimingsHandler. Please Switch to Timings.of ASAP").printStackTrace();
